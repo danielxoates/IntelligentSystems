@@ -1,13 +1,13 @@
 clc;
 clear;
 
-filename = "yelp_labelled.txt";
-dataReviews = readtable(filename,'TextType','string'); 
-textData = dataReviews.review; %get review text 
-actualScore = dataReviews.score;
+
+data=readtable('updated_flights.csv');
+textData = data.text;
+sentiment=data.airline_sentiment;
 documents = preprocessText(textData);
-fprintf('File: %s, Sentences: %d\n', filename, size(documents));
-labels = categorical(actualScore, [0 1], {'negative', 'positive'});
+fprintf('File: updated_flights.csv, Sentences: %d\n', size(documents));
+labels = categorical(sentiment, [0 1], {'negative', 'positive'});
 
 [trainData, testData, trainLabels, testLabels] = split_data(documents, labels);
 
@@ -48,6 +48,20 @@ net = trainNetwork(XTrain, categorical(trainLabels), layers, options);
 % Test the RNN
 YPred = classify(net, XTest);
 accuracy = mean(YPred == categorical(testLabels));
+% Calculate the confusion matrix
+[C, order] = confusionmat(testLabels, YPred);
+
+% Calculate the precision and recall for each class
+precision = C(2,2)/(C(2,2)+C(1,2));
+recall = C(2,2)/(C(2,2)+C(2,1));
+
+% Calculate the F1 score for each class
+f1 = 2 * (precision*recall) / (precision + recall);
+
+% Display the results
+fprintf('Precision: %0.2f%%\n', precision*100);
+fprintf('F1 Score: %0.2f%%\n', f1*100);
+
 
 % Display the results
 fprintf('Test Accuracy: %0.2f%%\n', accuracy*100);

@@ -19,4 +19,8 @@ function [documents] = preprocessText(textData)
 
     % Remove stop words
     documents = removeStopWords(documents);
+
+    %remove tags
+    words=["@virginamerica","@united","@southwestair","@jetblue","@usairways","@americanair"];
+    documents = removeWords(documents,words);
 end
